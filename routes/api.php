@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\GameManagementController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GameController;
+use App\Http\Controllers\Api\LicenseController;
 use App\Http\Controllers\Api\SessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +19,10 @@ Route::get('/health', function () {
     return response()->json(['status' => 'ok']);
 });
 
+// Authentication
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
 // Games - Public
 Route::prefix('games')->group(function () {
     Route::get('/', [GameController::class, 'index']);
@@ -28,13 +34,24 @@ Route::prefix('games')->group(function () {
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    // User info
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    // Auth
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/user/change-password', [AuthController::class, 'changePassword']);
 
     // Games - Authenticated
     Route::get('/games/recommended', [GameController::class, 'recommended']);
+
+    // Licenses & Purchases
+    Route::prefix('licenses')->group(function () {
+        Route::get('/', [LicenseController::class, 'index']);
+        Route::post('/purchase-game', [LicenseController::class, 'purchaseGame']);
+        Route::post('/purchase-host-ticket', [LicenseController::class, 'purchaseHostTicket']);
+        Route::post('/subscribe', [LicenseController::class, 'subscribe']);
+        Route::post('/validate-key', [LicenseController::class, 'validateKey']);
+        Route::get('/check-access/{game}', [LicenseController::class, 'checkAccess']);
+    });
 
     // Sessions
     Route::prefix('session')->group(function () {
