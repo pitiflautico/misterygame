@@ -1,0 +1,194 @@
+{
+  "title": "El Asesinato en la Mansión Blackwood",
+  "tagline": "Un misterio victoriano donde cada sombra esconde un secreto",
+  "short_description": "El señor Blackwood ha sido encontrado muerto en su biblioteca. Como detective, debes descubrir al asesino entre los invitados antes del amanecer.",
+  "long_description": "Una noche tormentosa, una mansión aislada, y un cadáver en la biblioteca. Los invitados de Lord Blackwood están atrapados, y uno de ellos es el asesino. Interroga a los sospechosos, descubre pistas ocultas y resuelve el misterio antes de que sea demasiado tarde.",
+  "game_type": "murder",
+  "features": [
+    "Múltiples finales según tus decisiones",
+    "Sistema de pistas falsas y verdaderas",
+    "Roles secretos con información única",
+    "Audio atmosférico generado por IA",
+    "Documentos forenses para analizar"
+  ],
+  "roles": [
+    {
+      "role_id": "detective",
+      "name": "Detective Holmes",
+      "description": "Un detective privado contratado para resolver el caso",
+      "secret_information": "Sabes que el mayordomo tenía deudas de juego. Esta información podría ser clave.",
+      "objectives": [
+        "Interrogar a todos los sospechosos",
+        "Encontrar el arma del crimen",
+        "Descubrir el motivo del asesinato"
+      ]
+    },
+    {
+      "role_id": "butler",
+      "name": "Alfred el Mayordomo",
+      "description": "Mayordomo leal de la familia Blackwood durante 20 años",
+      "secret_information": "Viste algo esa noche, pero tienes miedo de hablar porque podría incriminarte.",
+      "objectives": [
+        "Proteger la reputación de la familia",
+        "Ocultar tus deudas de juego",
+        "Descubrir quién mató a tu señor"
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "scene_id": "scene_intro",
+      "is_start": true,
+      "type": "message",
+      "content": "La tormenta azota la Mansión Blackwood. Los relámpagos iluminan brevemente las ventanas góticas. Un grito rompe el silencio. Lord Blackwood ha sido encontrado muerto en su biblioteca, una daga clavada en su espalda. Eres {player_name}, y debes resolver este misterio antes del amanecer.",
+      "actions": [
+        {
+          "id": "examine_body",
+          "label": "Examinar el cuerpo",
+          "type": "choice",
+          "next_scene": "scene_examine",
+          "flags": {
+            "examined_body": true
+          }
+        },
+        {
+          "id": "question_butler",
+          "label": "Interrogar al mayordomo",
+          "type": "choice",
+          "next_scene": "scene_butler",
+          "flags": {
+            "talked_to_butler": true
+          }
+        },
+        {
+          "id": "search_library",
+          "label": "Registrar la biblioteca",
+          "type": "choice",
+          "next_scene": "scene_library",
+          "flags": {
+            "searched_library": true
+          }
+        }
+      ],
+      "media": {
+        "audio_url": null,
+        "image_url": null
+      },
+      "module_injections": ["audio_thunder", "img_mansion"],
+      "flags_trigger": [],
+      "is_ending": false
+    },
+    {
+      "scene_id": "scene_examine",
+      "type": "reveal",
+      "content": "Te acercas al cuerpo de Lord Blackwood. La daga es ornamentada, claramente parte de la colección de la mansión. Notas que hay un papel arrugado en su mano derecha. Lo desdoblas cuidadosamente: es una nota que dice 'Te conozco el secreto. Medianoche en la biblioteca.'",
+      "actions": [
+        {
+          "id": "take_note",
+          "label": "Tomar la nota como evidencia",
+          "type": "confirm",
+          "next_scene": "scene_clue_analysis",
+          "reveals_clue": "threatening_note",
+          "clue_data": {
+            "name": "Nota amenazante",
+            "description": "Una nota encontrada en la mano de la víctima",
+            "importance": "high"
+          },
+          "add_to_inventory": {
+            "note_item": {
+              "name": "Nota arrugada",
+              "description": "Te conozco el secreto. Medianoche en la biblioteca."
+            }
+          }
+        }
+      ],
+      "media": {
+        "image_url": null
+      },
+      "module_injections": ["pdf_forensic_report"],
+      "flags_trigger": [
+        {
+          "flag": "examined_body",
+          "equals": true
+        }
+      ],
+      "is_ending": false
+    },
+    {
+      "scene_id": "scene_ending_solved",
+      "type": "reveal",
+      "content": "Has reunido todas las piezas del rompecabezas. La evidencia señala claramente al asesino: {culprit_name}. Presentas tus conclusiones ante todos los reunidos en el salón. El asesino, acorralado por la lógica irrefutable de tus deducciones, confiesa. El caso está resuelto. La justicia prevalece en la Mansión Blackwood.",
+      "actions": [],
+      "media": {
+        "audio_url": null
+      },
+      "flags_trigger": [
+        {
+          "AND": [
+            {
+              "flag": "examined_body",
+              "equals": true
+            },
+            {
+              "flag": "found_weapon",
+              "equals": true
+            },
+            {
+              "flag": "discovered_motive",
+              "equals": true
+            }
+          ]
+        }
+      ],
+      "is_ending": true
+    }
+  ],
+  "modules": [
+    {
+      "module": "audio",
+      "id": "audio_thunder",
+      "tts_text": "Un trueno retumba en la distancia. La tormenta se intensifica.",
+      "voice": "onyx",
+      "effects": "reverb",
+      "duration_estimated": 8
+    },
+    {
+      "module": "image",
+      "id": "img_mansion",
+      "prompt": "Victorian gothic mansion at night, lightning storm, dark and mysterious atmosphere, cinematic lighting",
+      "purpose": "atmosphere"
+    },
+    {
+      "module": "pdf",
+      "id": "pdf_forensic_report",
+      "content": "<h1>INFORME FORENSE - CONFIDENCIAL</h1><p>Víctima: Lord Edmund Blackwood</p><p>Hora estimada de muerte: 23:45</p><p>Causa de muerte: Trauma penetrante. Daga clavada en región dorsal, perforando órganos vitales.</p><p>Notas: No hay señales de forcejeo. La víctima probablemente conocía al agresor.</p>",
+      "layout": "informe"
+    },
+    {
+      "module": "fake_web",
+      "id": "web_newspaper",
+      "type": "news",
+      "title": "Misterio en la Alta Sociedad: Lord Blackwood Encontrado Muerto",
+      "body": "La policía investiga la muerte de Lord Edmund Blackwood, prominente figura de la sociedad londinense. Los invitados a su cena anual permanecen bajo custodia para interrogatorio. Las autoridades no descartan ninguna hipótesis.",
+      "related_links": []
+    },
+    {
+      "module": "push",
+      "id": "push_01",
+      "text": "Escuchas pasos en el pasillo. Alguien se acerca...",
+      "trigger_scene": "scene_hallway"
+    }
+  ],
+  "initial_state": {
+    "flags": {
+      "game_started": true,
+      "suspects_count": 5
+    },
+    "variables": {
+      "player_name": "Detective",
+      "time_remaining": 120,
+      "culprit_name": "???",
+      "mansion_location": "Countryside, England"
+    }
+  }
+}
