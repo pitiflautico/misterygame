@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GameResource;
 use App\Models\Game;
 use App\Services\License\LicenseService;
 use Illuminate\Http\Request;
@@ -66,7 +67,7 @@ class GameController extends Controller
 
         $games = $query->paginate($request->get('per_page', 20));
 
-        return response()->json($games);
+        return GameResource::collection($games);
     }
 
     /**
@@ -88,7 +89,7 @@ class GameController extends Controller
         }
 
         return response()->json([
-            'game' => $game,
+            'game' => new GameResource($game),
             'has_access' => $hasAccess,
         ]);
     }
